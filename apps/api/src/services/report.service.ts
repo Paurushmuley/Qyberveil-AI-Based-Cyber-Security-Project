@@ -76,4 +76,20 @@ export class ReportService {
       include: { scan: true },
     });
   }
+
+  public static async listAllReports(projectId?: string) {
+    const where = projectId ? { projectId } : {};
+    return prisma.auditReport.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        project: true,
+        scan: {
+          include: {
+            target: true,
+          },
+        },
+      },
+    });
+  }
 }

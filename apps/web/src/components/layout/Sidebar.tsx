@@ -4,18 +4,29 @@ import {
   LayoutDashboard,
   FolderGit2,
   Radar,
+  GitCompare,
   Sparkles,
   FileText,
+  FileCode2,
   Sliders,
   ShieldAlert,
 } from 'lucide-react';
 
-const navigationItems = [
+interface NavItem {
+  name: string;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+}
+
+const navigationItems: NavItem[] = [
   { name: 'Dashboard', to: '/', icon: LayoutDashboard },
   { name: 'Projects & Targets', to: '/projects', icon: FolderGit2 },
   { name: 'Scans & Scope', to: '/scans', icon: Radar },
-  { name: 'AI Analyst', to: '/ai-analyst', icon: Sparkles, badge: 'M4' },
-  { name: 'Security Reports', to: '/reports', icon: FileText, badge: 'M5' },
+  { name: 'Scan Comparison', to: '/scans/compare', icon: GitCompare },
+  { name: 'AI Analyst Hub', to: '/ai-analyst', icon: Sparkles },
+  { name: 'Security Reports', to: '/reports', icon: FileText },
+  { name: 'OpenAPI Importer', to: '/api-importer', icon: FileCode2 },
   { name: 'AI Providers & Settings', to: '/settings/ai', icon: Sliders },
 ];
 

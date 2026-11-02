@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { prisma } from '../services/prisma.service.js';
 import { ScanService } from '../services/scan.service.js';
 import { ReportService } from '../services/report.service.js';
 import { AIAnalystService } from '../services/ai-analyst.service.js';
@@ -149,6 +150,96 @@ export class ScanController {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.send(pdfBuffer);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async listFindings(req: Request, res: Response<ApiResponse>, next: NextFunction): Promise<void> {
+    try {
+      const { projectId, scanId, severity, status, category, search } = req.query as Record<string, string | undefined>;
+      const findings = await ScanService.listFindings({
+        projectId,
+        scanId,
+        severity,
+        status,
+        category,
+        search,
+      });
+      res.json({
+        success: true,
+        data: findings,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async getPostureSummary(req: Request, res: Response<ApiResponse>, next: NextFunction): Promise<void> {
+    try {
+      const userId = ScanController.getUserId(req);
+      const { scanId } = req.body as { scanId?: string };
+      if (!scanId) {
+        res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'scanId is required for posture summary' },
+          timestamp: new Date().toISOString(),
+        });
+        return;
+      }
+      const posture = await AIAnalystService.generatePostureSummary(userId, scanId);
+      res.json({
+        success: true,
+        data: posture,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async listReports(req: Request, res: Response<ApiResponse>, next: NextFunction): Promise<void> {
+    try {
+      const { projectId } = req.query as { projectId?: string };
+      const reports = await ReportService.listAllReports(projectId);
+      res.json({
+        success: true,
+        data: reports,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async listScans(req: Request, res: Response<ApiResponse>, next: NextFunction): Promise<void> {
+    try {
+      const { projectId } = req.query as { projectId?: string };
+      const scans = await prisma.scan.findMany({
+        where: projectId ? { projectId } : {},
+        include: { target: true, project: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.json({
+        success: true,
+        data: scans,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async parseOpenApiSpec(req: Request, res: Response<ApiResponse>, next: NextFunction): Promise<void> {
+    try {
+      const { specContent, specUrl } = req.body as { specContent?: string; specUrl?: string };
+      const parsed = await ScanService.parseOpenApiSpec({ specContent, specUrl });
+      res.json({
+        success: true,
+        data: parsed,
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       next(err);
     }

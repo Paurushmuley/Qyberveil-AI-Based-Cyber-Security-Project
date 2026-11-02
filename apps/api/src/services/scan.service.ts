@@ -1,5 +1,6 @@
+import YAML from 'yaml';
 import { prisma } from './prisma.service.js';
-import { TriggerScanInput } from '@vulnsight/validation';
+import { TriggerScanInput, isRestrictedOrPrivateHost } from '@vulnsight/validation';
 import { ScannerEngine, ScopeRule } from '@vulnsight/scanner';
 import { ScanStatus, FindingStatus } from '@vulnsight/shared-types';
 
@@ -224,5 +225,189 @@ export class ScanService {
       where: { id: findingId },
       data: { status: status as unknown as import('@prisma/client').FindingStatus },
     });
+  }
+
+  /**
+   * Lists findings across scans with optional filters
+   */
+  public static async listFindings(options: {
+    projectId?: string;
+    scanId?: string;
+    severity?: string;
+    status?: string;
+    category?: string;
+    search?: string;
+  }) {
+    const where: any = {};
+    if (options.scanId) {
+      where.scanId = options.scanId;
+    } else if (options.projectId) {
+      where.scan = { projectId: options.projectId };
+    }
+    if (options.severity && options.severity !== 'ALL') {
+      where.severity = options.severity;
+    }
+    if (options.status && options.status !== 'ALL') {
+      where.status = options.status;
+    }
+    if (options.category && options.category !== 'ALL') {
+      where.category = options.category;
+    }
+    if (options.search) {
+      where.OR = [
+        { title: { contains: options.search, mode: 'insensitive' } },
+        { endpoint: { contains: options.search, mode: 'insensitive' } },
+        { description: { contains: options.search, mode: 'insensitive' } },
+        { cweId: { contains: options.search, mode: 'insensitive' } },
+      ];
+    }
+
+    return prisma.finding.findMany({
+      where,
+      include: {
+        evidence: true,
+        scan: {
+          include: {
+            project: true,
+            target: true,
+          },
+        },
+      },
+      orderBy: [
+        { severityScore: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      take: 100,
+    });
+  }
+
+  /**
+   * Parses an OpenAPI / Swagger spec from raw text/JSON or URL
+   */
+  public static async parseOpenApiSpec(input: { specContent?: string; specUrl?: string }) {
+    let rawContent = input.specContent;
+
+    if (!rawContent && input.specUrl) {
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(input.specUrl);
+      } catch {
+        throw new Error('Invalid OpenAPI URL provided');
+      }
+
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Only HTTP/HTTPS URLs are permitted');
+      }
+
+      if (process.env.ALLOW_PRIVATE_TARGETS !== 'true' && isRestrictedOrPrivateHost(parsedUrl.hostname)) {
+        throw new Error(`SSRF blocked: Host ${parsedUrl.hostname} is restricted`);
+      }
+
+      const res = await fetch(input.specUrl, {
+        headers: { 'User-Agent': 'Qyberveil-API-Scanner/0.1.0' },
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch OpenAPI spec from URL (HTTP ${res.status})`);
+      }
+
+      rawContent = await res.text();
+    }
+
+    if (!rawContent) {
+      throw new Error('Either specContent or specUrl must be provided');
+    }
+
+    let specObj: any;
+    try {
+      specObj = JSON.parse(rawContent);
+    } catch {
+      try {
+        specObj = YAML.parse(rawContent);
+      } catch {
+        throw new Error('Failed to parse OpenAPI specification as JSON or YAML');
+      }
+    }
+
+    if (!specObj || typeof specObj !== 'object') {
+      throw new Error('Invalid OpenAPI specification format');
+    }
+
+    const title = specObj.info?.title || 'API Specification';
+    const version = specObj.info?.version || '1.0.0';
+    const description = specObj.info?.description || '';
+    const servers = Array.isArray(specObj.servers)
+      ? specObj.servers.map((s: any) => s.url)
+      : specObj.host
+      ? [`${specObj.schemes?.[0] || 'https'}://${specObj.host}${specObj.basePath || ''}`]
+      : [];
+
+    const endpoints: Array<{
+      path: string;
+      method: string;
+      summary?: string;
+      description?: string;
+      operationId?: string;
+      tags: string[];
+      parameters: Array<{
+        name: string;
+        in: string;
+        required: boolean;
+        type?: string;
+        description?: string;
+      }>;
+      hasRequestBody: boolean;
+      security?: string[];
+    }> = [];
+
+    const paths = specObj.paths || {};
+    const validMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+
+    for (const [pathStr, pathItem] of Object.entries(paths)) {
+      if (!pathItem || typeof pathItem !== 'object') continue;
+      const commonParams = Array.isArray((pathItem as any).parameters) ? (pathItem as any).parameters : [];
+
+      for (const [method, op] of Object.entries(pathItem as any)) {
+        if (!validMethods.includes(method.toLowerCase())) continue;
+        const operation = op as any;
+        const opParams = Array.isArray(operation.parameters) ? operation.parameters : [];
+        const combinedParams = [...commonParams, ...opParams].map((p: any) => ({
+          name: p.name || 'unnamed',
+          in: p.in || 'query',
+          required: Boolean(p.required),
+          type: p.schema?.type || p.type || 'string',
+          description: p.description,
+        }));
+
+        const security = Array.isArray(operation.security)
+          ? operation.security.map((sec: any) => Object.keys(sec)[0]).filter(Boolean)
+          : Array.isArray(specObj.security)
+          ? specObj.security.map((sec: any) => Object.keys(sec)[0]).filter(Boolean)
+          : [];
+
+        endpoints.push({
+          path: pathStr,
+          method: method.toUpperCase(),
+          summary: operation.summary || '',
+          description: operation.description || '',
+          operationId: operation.operationId,
+          tags: Array.isArray(operation.tags) && operation.tags.length > 0 ? operation.tags : ['General'],
+          parameters: combinedParams,
+          hasRequestBody: Boolean(operation.requestBody || operation.parameters?.some((p: any) => p.in === 'body')),
+          security,
+        });
+      }
+    }
+
+    return {
+      title,
+      version,
+      description,
+      servers,
+      totalEndpoints: endpoints.length,
+      endpoints,
+      securitySchemes: specObj.components?.securitySchemes || specObj.securityDefinitions || {},
+    };
   }
 }

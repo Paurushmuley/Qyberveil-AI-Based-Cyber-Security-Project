@@ -42,6 +42,131 @@ export interface ProviderConnectionTestResult {
   error?: string;
 }
 
+export interface FindingItem {
+  id: string;
+  findingId: string;
+  title: string;
+  description: string;
+  category: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFORMATIONAL';
+  severityScore?: number;
+  cvssScore?: number;
+  cweId?: string;
+  status: 'CONFIRMED' | 'POTENTIAL' | 'NOT_REPRODUCED' | 'ACCEPTED_RISK' | 'RESOLVED';
+  endpoint: string;
+  httpMethod: string;
+  param?: string;
+  confidence: string;
+  confidenceRationale?: string;
+  remediation?: string;
+  scannerSource: string;
+  aiAnalyzed: boolean;
+  createdAt: string;
+  scan?: {
+    id: string;
+    profile: string;
+    status: string;
+    project?: { id: string; name: string };
+    target?: { id: string; url: string; host: string };
+  };
+  evidence?: Array<{
+    id: string;
+    requestPayload?: string;
+    responseStatus?: number;
+    responseHeaders?: any;
+    responseBodySample?: string;
+    evidenceText?: string;
+    curlCommand?: string;
+  }>;
+}
+
+export interface ScanItem {
+  id: string;
+  projectId: string;
+  targetId: string;
+  status: string;
+  profile: string;
+  startedAt?: string;
+  completedAt?: string;
+  durationSeconds?: number;
+  totalFindings: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  infoCount: number;
+  summary?: string;
+  createdAt: string;
+  target?: {
+    id: string;
+    url: string;
+    host: string;
+  };
+  project?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface PostureSummary {
+  overallScore: number;
+  postureRating: 'EXCELLENT' | 'ADEQUATE' | 'ELEVATED_RISK' | 'CRITICAL_ACTION_REQUIRED';
+  executiveNarrative: string;
+  topRemediationPriorities: string[];
+  attackSurfaceSummary: string;
+}
+
+export interface AuditReportItem {
+  id: string;
+  projectId: string;
+  scanId: string;
+  reportType: 'EXECUTIVE_SUMMARY' | 'TECHNICAL_DETAILED' | 'FULL_ASSESSMENT';
+  title: string;
+  summary?: string;
+  createdAt: string;
+  project?: { id: string; name: string };
+  scan?: {
+    id: string;
+    status: string;
+    profile: string;
+    completedAt?: string;
+    totalFindings: number;
+    criticalCount: number;
+    highCount: number;
+    mediumCount: number;
+    lowCount: number;
+    target?: { url: string; host: string };
+  };
+}
+
+export interface ParsedEndpoint {
+  path: string;
+  method: string;
+  summary?: string;
+  description?: string;
+  operationId?: string;
+  tags: string[];
+  parameters: Array<{
+    name: string;
+    in: string;
+    required: boolean;
+    type?: string;
+    description?: string;
+  }>;
+  hasRequestBody: boolean;
+  security?: string[];
+}
+
+export interface ParsedOpenApiSpec {
+  title: string;
+  version: string;
+  description?: string;
+  servers: string[];
+  totalEndpoints: number;
+  endpoints: ParsedEndpoint[];
+  securitySchemes: Record<string, any>;
+}
+
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('qyberveil_token');
   const authHeaders: Record<string, string> = {};
@@ -171,6 +296,42 @@ export const api = {
   analyzeFinding: (findingId: string) =>
     request<any>(`/api/scans/findings/${findingId}/analyze`, {
       method: 'POST',
+    }),
+  listFindings: (params?: {
+    projectId?: string;
+    scanId?: string;
+    severity?: string;
+    status?: string;
+    category?: string;
+    search?: string;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.projectId) query.set('projectId', params.projectId);
+    if (params?.scanId) query.set('scanId', params.scanId);
+    if (params?.severity) query.set('severity', params.severity);
+    if (params?.status) query.set('status', params.status);
+    if (params?.category) query.set('category', params.category);
+    if (params?.search) query.set('search', params.search);
+    const queryString = query.toString();
+    return request<FindingItem[]>(`/api/scans/findings${queryString ? `?${queryString}` : ''}`);
+  },
+  getPostureSummary: (scanId: string) =>
+    request<PostureSummary>('/api/scans/posture', {
+      method: 'POST',
+      body: JSON.stringify({ scanId }),
+    }),
+  listReports: (projectId?: string) => {
+    const query = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+    return request<AuditReportItem[]>(`/api/scans/reports${query}`);
+  },
+  listScans: (projectId?: string) => {
+    const query = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+    return request<ScanItem[]>(`/api/scans${query}`);
+  },
+  parseOpenApiSpec: (input: { specContent?: string; specUrl?: string }) =>
+    request<ParsedOpenApiSpec>('/api/scans/openapi/parse', {
+      method: 'POST',
+      body: JSON.stringify(input),
     }),
   getReportUrl: (scanId: string, type = 'TECHNICAL_DETAILED') =>
     `/api/scans/${scanId}/report?type=${type}`,

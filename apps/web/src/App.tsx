@@ -6,6 +6,10 @@ import { AppLayout } from './components/layout/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ScansPage } from './pages/ScansPage';
+import { AiAnalystPage } from './pages/AiAnalystPage';
+import { ReportsPage } from './pages/ReportsPage';
+import { ScanComparisonPage } from './pages/ScanComparisonPage';
+import { OpenApiImporterPage } from './pages/OpenApiImporterPage';
 import { AiSettingsPage } from './pages/AiSettingsPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
@@ -39,6 +43,10 @@ export const App: React.FC = () => {
               <Route index element={<DashboardPage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="scans" element={<ScansPage />} />
+              <Route path="scans/compare" element={<ScanComparisonPage />} />
+              <Route path="ai-analyst" element={<AiAnalystPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="api-importer" element={<OpenApiImporterPage />} />
               <Route path="settings/ai" element={<AiSettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
