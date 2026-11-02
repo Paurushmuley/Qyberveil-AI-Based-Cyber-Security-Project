@@ -1,0 +1,324 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SECURITY_ANALYST
+  DEVELOPER
+  VIEWER
+}
+
+enum TargetVerificationMethod {
+  DNS_TXT
+  HTTP_META_TAG
+  HTTP_FILE_TOKEN
+  DOCUMENTED_AUTHORIZATION
+}
+
+enum TargetVerificationStatus {
+  PENDING
+  VERIFIED
+  FAILED
+  EXPIRED
+}
+
+enum ScanProfile {
+  BASELINE
+  API_SECURITY
+  FULL_ACTIVE
+  CUSTOM
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  ANALYZING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum FindingSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFORMATIONAL
+}
+
+enum FindingCategory {
+  INJECTION
+  BROKEN_AUTHENTICATION
+  SENSITIVE_DATA_EXPOSURE
+  XML_EXTERNAL_ENTITIES
+  BROKEN_ACCESS_CONTROL
+  SECURITY_MISCONFIGURATION
+  CROSS_SITE_SCRIPTING
+  INSECURE_DESERIALIZATION
+  VULNERABLE_COMPONENTS
+  INSUFFICIENT_LOGGING
+  SSRF
+  API_VULNERABILITY
+  OTHER
+}
+
+enum FindingStatus {
+  CONFIRMED
+  POTENTIAL
+  NOT_REPRODUCED
+  ACCEPTED_RISK
+  RESOLVED
+}
+
+enum FindingConfidence {
+  HIGH
+  MEDIUM
+  LOW
+  FALSE_POSITIVE_SUSPECTED
+}
+
+enum AIProvider {
+  OPENAI
+  GEMINI
+  GROK
+  OLLAMA
+}
+
+enum AuditReportType {
+  EXECUTIVE_SUMMARY
+  TECHNICAL_DETAILED
+  FULL_ASSESSMENT
+}
+
+model User {
+  id                      String                  @id @default(uuid())
+  email                   String                  @unique
+  name                    String?
+  passwordHash            String
+  role                    UserRole                @default(SECURITY_ANALYST)
+  resetPasswordToken      String?
+  resetPasswordExpires    DateTime?
+  isActive                Boolean                 @default(true)
+  projects                Project[]
+  aiConfigurations        AIProviderConfiguration[]
+  auditEvents             AuditEvent[]
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  @@index([email])
+  @@index([resetPasswordToken])
+}
+
+model Project {
+  id              String             @id @default(uuid())
+  name            String
+  description     String?
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targets         AuthorizedTarget[]
+  scans           Scan[]
+  reports         AuditReport[]
+  scanComparisons ScanComparison[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([name])
+}
+
+model AuthorizedTarget {
+  id                  String                   @id @default(uuid())
+  projectId           String
+  project             Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url                 String
+  host                String
+  inScopePaths        String[]                 @default(["/"])
+  excludedPaths       String[]                 @default([])
+  isVerified          Boolean                  @default(false)
+  verificationMethod  TargetVerificationMethod @default(DOCUMENTED_AUTHORIZATION)
+  verificationStatus  TargetVerificationStatus @default(PENDING)
+  verificationToken   String?
+  verifiedAt          DateTime?
+  authorizationNotes  String?
+  scans               Scan[]
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@index([projectId])
+  @@index([host])
+}
+
+model Scan {
+  id              String            @id @default(uuid())
+  projectId       String
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  targetId        String
+  target          AuthorizedTarget  @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  status          ScanStatus        @default(QUEUED)
+  profile         ScanProfile       @default(BASELINE)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  durationSeconds Int?
+  totalFindings   Int               @default(0)
+  criticalCount   Int               @default(0)
+  highCount       Int               @default(0)
+  mediumCount     Int               @default(0)
+  lowCount        Int               @default(0)
+  infoCount       Int               @default(0)
+  summary         String?
+  failureReason   String?
+  jobs            ScanJob[]
+  findings        Finding[]
+  reports         AuditReport[]
+  baseComparisons ScanComparison[]  @relation("BaseScan")
+  targetComparisons ScanComparison[] @relation("TargetScan")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([projectId])
+  @@index([targetId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ScanJob {
+  id          String     @id @default(uuid())
+  scanId      String
+  scan        Scan       @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  workerId    String?
+  status      ScanStatus @default(QUEUED)
+  progress    Int        @default(0)
+  logs        String?
+  retryCount  Int        @default(0)
+  error       String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([scanId])
+  @@index([status])
+}
+
+model Finding {
+  id                  String             @id @default(uuid())
+  scanId              String
+  scan                Scan               @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  findingId           String             // Deterministic hash/slug for correlation across scans
+  title               String
+  description         String
+  category            FindingCategory    @default(OTHER)
+  severity            FindingSeverity    @default(INFORMATIONAL)
+  severityScore       Float?
+  cvssScore           Float?
+  cweId               String?
+  status              FindingStatus      @default(POTENTIAL)
+  endpoint            String
+  httpMethod          String             @default("GET")
+  param               String?
+  confidence          FindingConfidence  @default(MEDIUM)
+  confidenceRationale String?
+  remediation         String?
+  scannerSource       String             @default("OWASP_ZAP")
+  aiAnalyzed          Boolean            @default(false)
+  evidence            FindingEvidence[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([scanId])
+  @@index([findingId])
+  @@index([severity])
+  @@index([category])
+  @@index([status])
+}
+
+model FindingEvidence {
+  id                 String    @id @default(uuid())
+  findingId          String
+  finding            Finding   @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  requestPayload     String?
+  responseStatus     Int?
+  responseHeaders    Json?
+  responseBodySample String?
+  evidenceText       String?
+  curlCommand        String?
+  createdAt          DateTime  @default(now())
+
+  @@index([findingId])
+}
+
+model AIProviderConfiguration {
+  id               String     @id @default(uuid())
+  userId           String
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider         AIProvider
+  modelName        String
+  encryptedApiKey  String?    // Authenticated AES-256-GCM encrypted key with IV + auth tag
+  baseUrl          String?    // Used for Ollama or custom gateway endpoints
+  isActive         Boolean    @default(true)
+  isTested         Boolean    @default(false)
+  lastTestedAt     DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+model AuditReport {
+  id          String          @id @default(uuid())
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  scanId      String
+  scan        Scan            @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  reportType  AuditReportType @default(EXECUTIVE_SUMMARY)
+  title       String
+  summary     String?
+  fileUrl     String?
+  generatedBy String?
+  createdAt   DateTime        @default(now())
+
+  @@index([projectId])
+  @@index([scanId])
+}
+
+model ScanComparison {
+  id                      String   @id @default(uuid())
+  projectId               String
+  project                 Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  baseScanId              String
+  baseScan                Scan     @relation("BaseScan", fields: [baseScanId], references: [id], onDelete: Cascade)
+  targetScanId            String
+  targetScan              Scan     @relation("TargetScan", fields: [targetScanId], references: [id], onDelete: Cascade)
+  newFindingsCount        Int      @default(0)
+  resolvedFindingsCount   Int      @default(0)
+  persistentFindingsCount Int      @default(0)
+  createdAt               DateTime @default(now())
+
+  @@index([projectId])
+  @@index([baseScanId])
+  @@index([targetScanId])
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "SCAN_TRIGGERED", "TARGET_CREATED", "AI_CONFIG_UPDATED"
+  entityType String   // e.g. "Project", "Scan", "AuthorizedTarget"
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

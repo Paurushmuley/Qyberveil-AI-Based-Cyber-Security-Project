@@ -1,0 +1,26 @@
+{
+  "name": "@vulnsight/scan-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@vulnsight/ai-providers": "*",
+    "@vulnsight/scanner": "*",
+    "@vulnsight/shared-types": "*",
+    "@vulnsight/validation": "*",
+    "bullmq": "^5.41.0",
+    "dotenv": "^16.4.7",
+    "ioredis": "^5.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

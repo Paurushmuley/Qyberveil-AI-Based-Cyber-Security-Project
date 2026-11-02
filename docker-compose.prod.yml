@@ -1,0 +1,120 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: vulnsight-prod-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password required}
+      POSTGRES_DB: ${POSTGRES_DB:-vulnsight}
+    volumes:
+      - prod_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vulnsight"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend-tier
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+
+  redis:
+    image: redis:7-alpine
+    container_name: vulnsight-prod-redis
+    restart: always
+    volumes:
+      - prod_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend-tier
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: vulnsight-prod-api
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY required}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://app.vulnsight.ai}
+      ALLOW_PRIVATE_TARGETS: "false"
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - frontend-tier
+      - backend-tier
+
+  scan-worker:
+    build:
+      context: .
+      dockerfile: workers/scan-worker/Dockerfile
+    container_name: vulnsight-prod-worker
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      ALLOW_PRIVATE_TARGETS: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend-tier
+      - scanner-isolation-tier
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 4096M
+
+  zap:
+    image: zaproxy/zap-stable:latest
+    container_name: vulnsight-prod-zap
+    restart: unless-stopped
+    command: zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+    ports:
+      - "8080:8080"
+    networks:
+      - scanner-isolation-tier
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+
+volumes:
+  prod_postgres_data:
+  prod_redis_data:
+
+networks:
+  frontend-tier:
+    driver: bridge
+  backend-tier:
+    driver: bridge
+  scanner-isolation-tier:
+    driver: bridge
+    internal: false

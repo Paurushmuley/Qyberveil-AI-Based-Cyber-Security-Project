@@ -1,0 +1,113 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: vulnsight-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: vulnsight
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vulnsight"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vulnsight-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: vulnsight-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vulnsight-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: vulnsight-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      CORS_ORIGIN: "http://localhost:5173,http://localhost:3000"
+      DATABASE_URL: "postgresql://postgres:postgrespassword@postgres:5432/vulnsight?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      ENCRYPTION_KEY: "vulnsight_ai_super_secret_master_key_32_bytes!"
+      ALLOW_PRIVATE_TARGETS: "false"
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - vulnsight-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: vulnsight-web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: "http://api:4000"
+    depends_on:
+      - api
+    networks:
+      - vulnsight-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vulnsight-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - vulnsight-network
+
+  scan-worker:
+    build:
+      context: .
+      dockerfile: workers/scan-worker/Dockerfile
+    container_name: vulnsight-scan-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://postgres:postgrespassword@postgres:5432/vulnsight?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - vulnsight-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
+
+networks:
+  vulnsight-network:
+    driver: bridge

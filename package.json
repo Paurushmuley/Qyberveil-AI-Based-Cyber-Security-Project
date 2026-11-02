@@ -1,0 +1,36 @@
+{
+  "name": "qyberveil",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Discover vulnerabilities. Understand risk. Secure with confidence.",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "workers/*"
+  ],
+  "scripts": {
+    "start": "node apps/api/dist/index.js",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"API,WEB\" -c \"cyan.bold,green.bold\" \"npm run dev --workspace=@vulnsight/api\" \"npm run dev --workspace=@vulnsight/web\"",
+    "dev:api": "npm run dev --workspace=@vulnsight/api",
+    "dev:web": "npm run dev --workspace=@vulnsight/web",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:push": "prisma db push --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "prisma": "^6.4.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
