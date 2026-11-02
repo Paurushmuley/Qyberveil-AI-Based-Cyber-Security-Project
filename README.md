@@ -1,172 +1,252 @@
-# Qyberveil
-> **Discover vulnerabilities. Understand risk. Secure with confidence.**
+<div align="center">
 
-Qyberveil is a production-minded, open-source AI-powered application security assessment platform designed for developers, AppSec engineers, and security auditors. It orchestrates automated vulnerability scanning (OWASP ZAP & OpenAPI discovery), performs scope and target authorization verification, and leverages provider-agnostic AI to triage findings, eliminate hallucinations, explain business impact, and deliver framework-specific remediation code.
+# 🛡️ QYBERVEIL
+
+### **Discover Vulnerabilities. Understand Risk. Secure with Confidence.**
+
+*An AI-powered, production-minded application security assessment platform built for developers, AppSec teams, and security auditors.*
 
 ---
 
-## 🏛️ Architecture Overview
+[![Node.js Version](https://img.shields.io/badge/Node.js-v20%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Prisma ORM](https://img.shields.io/badge/Prisma-6.4-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
 
-The platform uses a decoupled monorepo architecture:
+[Features](#-key-features) • [How It Works](#-how-qyberveil-works) • [Comparison](#-traditional-scanners-vs-qyberveil) • [Quickstart](#-quickstart-guide) • [AI Subsystem](#-evidence-grounded-ai-system) • [Architecture](#-system-architecture) • [Security](#-security-boundaries--guardrails)
+
+---
+
+</div>
+
+## 💡 Why Qyberveil?
+
+Most application security tools (DAST scanners) dump **hundreds of cryptic alerts** with high false-positive rates. Developers waste hours Googling generic error descriptions like `CWE-1021`, while security teams suffer from **alert fatigue**.
+
+**Qyberveil bridges the gap between scanning and fixing.** It automates vulnerability scanning, strictly limits scans to verified authorized scopes, validates raw HTTP evidence, and uses **provider-agnostic AI** (Gemini, OpenAI, Grok, or offline Ollama) to:
+
+1. **Eliminate False Positives:** Verify if the vulnerability was actually triggered based on HTTP evidence.
+2. **Explain Real Business Impact:** Translate technical findings into executive risk narratives.
+3. **Generate Framework-Specific Code Fixes:** Deliver copy-paste code patches (Express, Python FastAPI, Django, Spring Boot, etc.).
+4. **Produce Audit-Ready PDF Reports:** Generate executive summaries and detailed technical breakdowns in one click.
+
+---
+
+## ⚡ Traditional Scanners vs. Qyberveil
+
+```
+Traditional Scanners (Burp, Nessus, Acunetix)
+  ❌ Dumps 500+ raw, unverified alerts
+  ❌ Generic remediation: "Sanitize all user inputs"
+  ❌ High rate of false positives wasting engineering sprints
+  ❌ High annual license costs ($15k–$50k/year)
+
+Qyberveil AI Platform
+  ✅ Grounds findings strictly in captured HTTP request/response evidence
+  ✅ Delivers copy-paste remediation code tailored to your exact tech stack
+  ✅ AI filters out false positives with rationales and confidence scores
+  ✅ 100% Free & Open-Source with offline AI (Ollama) or cloud models (Gemini/OpenAI)
+```
+
+---
+
+## 🎯 Who is Qyberveil For?
+
+| Persona | How Qyberveil Helps |
+| :--- | :--- |
+| 🧑‍💻 **Developers** | Get exact code snippets and regression `curl` tests to fix security issues in minutes without needing a cybersecurity degree. |
+| 🛡️ **AppSec Engineers** | Automate initial alert triage and eliminate false positives, saving dozens of hours each week. |
+| 🚀 **Startups & SMBs** | Run continuous, enterprise-grade penetration testing without hiring expensive external auditing agencies. |
+| 📋 **Auditors & CISOs** | One-click export of compliance-ready PDF reports with severity scorecards and target authorization audit trails. |
+
+---
+
+## 🚀 Key Features
+
+### 🔍 1. Multi-Vector Vulnerability Scanning
+* **OpenAPI & Swagger Discovery:** Automatically parses API specifications (`/openapi.json`, Swagger UI) to map routes, methods, request bodies, and authentication schemes.
+* **Native Baseline Probes:** Inspects critical security headers (`HSTS`, `CSP`, `X-Frame-Options`, `X-Content-Type-Options`, banner disclosures) and cookie attributes (`HttpOnly`, `Secure`, `SameSite`).
+* **OWASP ZAP Integration:** Integrates with OWASP ZAP for spidering, crawling, and active parameter probing.
+
+### 🧠 2. Evidence-Grounded AI Security Analyst
+* **Provider Flexibility:** Native adapters for **Google Gemini** (`gemini-2.0-flash`), **OpenAI** (`gpt-4o`, `o3-mini`), **xAI Grok** (`grok-2`), or **100% Offline Local Ollama** (`llama3.3`, `deepseek-r1`).
+* **Zero Hallucination Guarantee:** The AI evaluates only captured HTTP evidence (status codes, payloads, headers) wrapped in strict anti-prompt-injection isolation tags.
+* **Automated Regression Verification:** Generates ready-to-run `curl` commands and test assertions to verify fixes before deploying.
+
+### 🛡️ 3. Scope Control & SSRF Guardrails
+* **Mandatory Target Authorization:** Requires verified domain ownership via **DNS TXT records**, **HTTP file tokens**, or documented authorization.
+* **Anti-SSRF Protection:** Enforces strict boundary checks that reject private IP ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), loopbacks (`127.0.0.1`, `localhost`), and cloud metadata services (`169.254.169.254`).
+
+### 📊 4. Executive & Technical PDF Reports
+* Generates professional, branded PDF reports containing:
+  - Executive Risk Scorecards & Severity Heatmaps (Critical, High, Medium, Low).
+  - Assessment Scope, Target URL, and timestamped audit metadata.
+  - Detailed vulnerability breakdowns with CWE/CVSS mapping, proof-of-exploit evidence, and code fixes.
+
+### 🔐 5. Zero-Exposure Key Security
+* API keys are encrypted at rest using **Authenticated AES-256-GCM** (random 96-bit IV + 128-bit auth tag).
+* Raw plaintext keys are never returned to client-side JavaScript or written to logs.
+
+---
+
+## 🔄 How Qyberveil Works
+
+```mermaid
+flowchart TD
+    A["Target Registration"] --> B{"Scope & Ownership Check"}
+    B -- "Blocked" --> C["SSRF Guardrail Alert"]
+    B -- "Verified" --> D["Scanner Engine Launch"]
+    
+    D --> E["Native Security Checks (Headers, Cookies, Sensitive Paths)"]
+    D --> F["OpenAPI / Swagger Ingestion"]
+    D --> G["OWASP ZAP Spider & Active Engine"]
+    
+    E --> H["Finding Normalizer & Deduplication"]
+    F --> H
+    G --> H
+    
+    H --> I["Evidence Extraction (Payloads, Status, Headers)"]
+    I --> J["AI Analyst Triage (Gemini / OpenAI / Grok / Ollama)"]
+    
+    J --> K["1. False Positive Assessment"]
+    J --> L["2. Business Impact Translation"]
+    J --> M["3. Framework Remediation Code"]
+    
+    K --> N["Interactive Cyber Dashboard"]
+    L --> N
+    M --> N
+    N --> O["PDF Security Audit Report"]
+```
+
+---
+
+## 🏛️ System Architecture
+
+Qyberveil is built as a modular monorepo:
 
 ```
 qyberveil/
-  apps/
-    web/              # React, Vite, TypeScript, Tailwind CSS, TanStack Query
-    api/              # Node.js, Express.js, TypeScript, REST API, Helmet, Zod
-  packages/
-    shared-types/     # Shared domain interfaces, Enums, and API envelopes
-    validation/       # Runtime Zod validation schemas with SSRF guards
-    ai-providers/     # (M2) Modular adapters: OpenAI, Gemini, Grok, Ollama
-    scanner/          # (M3) Scanner orchestrator & finding normalizer
-    reports/          # (M5) PDF generator engine
-  workers/
-    scan-worker/      # Isolated Docker-capable worker running BullMQ
-  prisma/
-    schema.prisma     # PostgreSQL data model (11 models)
-  docker-compose.yml  # Multi-service local stack (Postgres, Redis, Ollama, API, Web)
-  .env.example        # Environment variable template
-  SECURITY.md         # Vulnerability reporting & security boundaries
-  CONTRIBUTING.md     # Development standards & guidelines
-```
-
-### Data Flow
-
-```
-[User Browser (React + Vite)]
-         │
-         ▼  (REST + Zod Validation)
-[VulnSight API (Express.js)] ───► [PostgreSQL (Prisma ORM)]
-         │                              ▲
-         ▼ (BullMQ Queue)               │ (Structured Findings)
-[Scan Worker (Isolated Container)] ─────┤
-         │                              │
-         ├─► [OWASP ZAP Engine]         │
-         │                              │
-         └─► [AI Provider Adapter] ─────┘
-             (OpenAI / Gemini / Grok / Local Ollama)
+├── apps/
+│   ├── web/              # Modern React + Vite + Tailwind CSS Dark Cyber Dashboard
+│   └── api/              # Node.js + Express.js REST API with Helmet & Zod validation
+├── packages/
+│   ├── shared-types/     # Shared TypeScript domain contracts, Enums & API envelopes
+│   ├── validation/       # Runtime Zod validation schemas & SSRF boundary guards
+│   ├── ai-providers/     # Multi-provider adapters (Gemini, OpenAI, Grok, Ollama)
+│   ├── scanner/          # Core scanning engine, scope validator & alert normalizer
+│   └── reports/          # High-fidelity PDF report generation engine (PDFKit)
+├── workers/
+│   └── scan-worker/      # Isolated Docker background worker running BullMQ
+├── prisma/
+│   └── schema.prisma     # PostgreSQL data model (11 models, relations, cascades)
+├── docker-compose.yml    # Complete local development stack
+├── docker-compose.prod.yml # Production multi-tier stack with network isolation
 ```
 
 ---
 
-## 🧠 AI Provider System (Milestone 2)
+## 🤖 Evidence-Grounded AI System
 
-VulnSight AI provides a modular, provider-independent AI subsystem in `packages/ai-providers`:
-
-| Provider | SDK / Integration | Supported Models | Key Features |
+| Provider | Supported Models | Execution Mode | Best For |
 | :--- | :--- | :--- | :--- |
-| **Google Gemini** | `@google/generative-ai` | `gemini-2.0-flash` (Default), `gemini-1.5-pro`, `gemini-1.5-flash` | High throughput, 1M+ context window, native JSON schema support. |
-| **OpenAI** | `openai` | `gpt-4o` (Default), `gpt-4o-mini`, `o3-mini` | State-of-the-art AppSec vulnerability reasoning, JSON mode. |
-| **xAI Grok** | `openai` (`https://api.x.ai/v1`) | `grok-2` (Default), `grok-2-mini`, `grok-beta` | Deep technical reasoning with strong coding and exploit verification. |
-| **Ollama (Local)** | Native HTTP API | `llama3.3` (Default), `deepseek-r1`, `qwen2.5-coder`, `mistral` | Fully offline, zero telemetry, no cloud API key required. |
-
-### Credential Protection & Server-Side Encryption
-- **Authenticated AES-256-GCM:** API keys are encrypted immediately upon server reception using a random 96-bit IV and 128-bit authentication tag.
-- **Zero Client Exposure:** Plaintext keys are never returned to frontend JavaScript after submission. The UI only sees a masked format (e.g. `sk-...cdef`).
-- **No Log Leakage:** HTTP request loggers and exception handlers explicitly suppress authentication headers, decrypted credentials, and request payloads containing secrets.
-- **Hosted vs. Local Execution:** In local development, Ollama runs on `http://localhost:11434` without cloud keys. In hosted deployments (such as Vercel), serverless functions cannot connect to a user's localhost; cloud providers are used instead.
+| **Google Gemini** | `gemini-2.0-flash` (Default), `gemini-1.5-pro` | Cloud API | Ultra-fast triage, large context windows, native JSON mode. |
+| **OpenAI** | `gpt-4o` (Default), `gpt-4o-mini`, `o3-mini` | Cloud API | Industry-benchmark AppSec reasoning and precision code fixes. |
+| **xAI Grok** | `grok-2` (Default), `grok-beta` | Cloud API | Deep technical vulnerability analysis and exploit logic validation. |
+| **Ollama** | `llama3.3` (Default), `deepseek-r1`, `qwen2.5-coder` | **100% Local / Offline** | Private environments, zero data leakage, zero API subscription cost. |
 
 ---
 
-## 🚀 Quickstart & Local Development
+## ⚡ Quickstart Guide
 
 ### Prerequisites
-- **Node.js**: `v20+` or `v22+`
-- **npm**: `v10+`
-- **Docker & Docker Compose** (for isolated database, redis, and scanner execution)
+* **Node.js**: `v20.0.0` or higher
+* **npm**: `v10.0.0` or higher
+* **Docker & Docker Compose** (recommended for full stack with PostgreSQL and Redis)
 
-### 1. Installation
+---
 
-Clone the repository and install dependencies:
+### Option A: 🐳 Docker Compose (Easiest)
 
-```bash
-git clone https://github.com/your-org/vulnsight-ai.git
-cd vulnsight-ai
-npm install
-```
-
-### 2. Configure Environment
-
-Copy the example configuration:
+Spin up the entire stack (Postgres, Redis, API, Web, Ollama, and Worker) in one command:
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/Qyberveil-CS-application.git
+cd Qyberveil-CS-application
+
+# 2. Setup your environment file
 cp .env.example .env
-```
 
-### 3. Database Setup
-
-Generate the Prisma Client:
-
-```bash
-npm run db:generate
-```
-
-Push database schema to PostgreSQL:
-
-```bash
-npm run db:push
-```
-
-### 4. Running the Stack
-
-#### Option A: Docker Compose (Full Stack)
-Spins up PostgreSQL, Redis, Ollama, the API server, the Web dashboard, and the Scan Worker:
-
-```bash
+# 3. Boot all services
 docker compose up -d
 ```
 
-#### Option B: Local Node.js Development
-If you have PostgreSQL running locally:
+* **Web Dashboard:** [http://localhost:5173](http://localhost:5173)
+* **API Server:** [http://localhost:4000](http://localhost:4000)
+* **API Healthcheck:** [http://localhost:4000/health](http://localhost:4000/health)
+
+---
+
+### Option B: 💻 Local Node.js Development
+
+If you prefer to run services locally:
 
 ```bash
-# Start both API and Web concurrently
+# 1. Install dependencies across all monorepo packages
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Generate Prisma client & push schema
+npm run db:generate
+npm run db:push
+
+# 4. Start both API and Web concurrently
 npm run dev
+```
 
-# Or run separately:
-npm run dev:api    # Runs on http://localhost:4000
-npm run dev:web    # Runs on http://localhost:5173
+Or run individual workspaces:
+```bash
+npm run dev:api    # Starts API on http://localhost:8000 (or PORT from .env)
+npm run dev:web    # Starts Web Vite dev server on http://localhost:5173
 ```
 
 ---
 
-## 🛡️ Health Check Verification
+## 🧪 Testing
 
-The API exposes an automated health-check diagnostic endpoint verifying database and queue connectivity:
+Run the automated test suites across all packages:
 
 ```bash
-curl http://localhost:4000/health
+npm test
 ```
 
-Sample Response:
-```json
-{
-  "success": true,
-  "data": {
-    "status": "healthy",
-    "version": "0.1.0",
-    "uptimeSeconds": 142,
-    "environment": "development",
-    "services": {
-      "database": {
-        "status": "connected",
-        "latencyMs": 4
-      },
-      "redis": {
-        "status": "connected",
-        "latencyMs": 1
-      }
-    }
-  },
-  "timestamp": "2026-10-28T11:40:00.000Z"
-}
+Build all packages for production:
+```bash
+npm run build
 ```
 
 ---
 
-## 🔒 Security Principles
+## 🔒 Security Boundaries & Guardrails
 
-1. **Authorization Mandatory:** Scans cannot be executed without explicit authorization and verified domain ownership.
-2. **SSRF Guardrails:** Target URLs are validated to block private IPv4/IPv6 ranges, loopback (`localhost`, `127.0.0.1`), and cloud metadata (`169.254.169.254`).
-3. **Evidence-Based AI:** AI suggestions are explicitly grounded in raw scanner evidence; vulnerabilities are never fabricated or claimed confirmed without proof.
-4. **Zero Key Storage:** AI provider API keys are encrypted server-side using AES-256-GCM and never exposed to the browser.
+1. **Target Authorization:** Active scans require prior domain verification via DNS TXT records (`qyberveil-verify=...`) or HTTP token files.
+2. **SSRF Boundary Enforcement:** The platform actively blocks loopback addresses, internal subnets, and cloud infrastructure metadata endpoints.
+3. **Evidence Isolation:** All untrusted web inputs harvested from scanned targets are strictly sanitized and enclosed in boundary tags `<untrusted_scanner_evidence>` to prevent prompt-injection attacks against the AI.
+4. **Secret Protection:** Provider credentials are encrypted using authenticated AES-256-GCM. Decrypted keys never enter client-side state or server access logs.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ for modern software development and application security.</sub>
+</div>
