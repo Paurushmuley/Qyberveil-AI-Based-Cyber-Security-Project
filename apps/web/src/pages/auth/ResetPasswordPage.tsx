@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, Lock, Key, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Lock, Key, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { Logo } from '../../components/common/Logo';
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,14 +62,9 @@ export const ResetPasswordPage: React.FC = () => {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 to-sky-400 flex items-center justify-center shadow-lg shadow-cyan-500/25">
-              <ShieldCheck className="w-7 h-7 text-cyber-950 stroke-[2.5]" />
-            </div>
-            <span className="font-bold text-2xl tracking-tight text-white font-mono">
-              Qyber<span className="text-cyan-400">veil</span>
-            </span>
-          </div>
+          <Link to="/">
+            <Logo size="lg" showWordmark={true} />
+          </Link>
         </div>
         <h2 className="mt-6 text-center text-xl font-bold tracking-tight text-white font-mono">
           Set New Security Password

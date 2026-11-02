@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Activity, Terminal, ExternalLink, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { Activity, Terminal, ExternalLink, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { Logo } from '../common/Logo';
 
 export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -27,15 +28,10 @@ export const Header: React.FC = () => {
   return (
     <header className="h-16 border-b border-cyber-border bg-cyber-950/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center space-x-3">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-600 to-sky-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <ShieldCheck className="w-5 h-5 text-cyber-950 stroke-[2.5]" />
-          </div>
-          <span className="font-bold text-lg tracking-tight text-white font-mono">
-            Qyber<span className="text-cyan-400">veil</span>
-          </span>
+        <Link to="/" className="flex items-center">
+          <Logo size="sm" showWordmark={true} />
         </Link>
-        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-800/60 text-slate-300 font-mono">
+        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-800/60 text-slate-300 font-mono ml-2">
           v0.1.0-alpha
         </span>
       </div>

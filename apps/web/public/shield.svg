@@ -1,4 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-  <path d="m9 12 2 2 4-4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE" />
+      <stop offset="50%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="shield-surface" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+  </defs>
+
+  <!-- Shield Base -->
+  <path
+    d="M50 12 L80 24 V49 C80 67 50 85 50 85 C50 85 20 67 20 49 V24 Z"
+    fill="url(#shield-surface)"
+    stroke="url(#shield-grad)"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+
+  <!-- Stylized Q & Orbit -->
+  <path
+    d="M50 25 C36.2 25 25 36.2 25 50 C25 63.8 36.2 75 50 75 C57.8 75 64.7 71.4 69.3 65.8 L76 72.5 C77.5 74 80 72.9 80 70.8 V60 C80 58.9 79.1 58 78 58 H67.2 C65.1 58 64 60.5 65.5 62 L69.8 66.3 C65.2 70.5 58.5 72.5 51 72 C39 71.2 30.2 60.8 31 48.8 C31.7 37.8 40.8 29 51.8 29 C60 29 67.2 34 70 41.5 C70.6 43 72.3 43.8 73.8 43.2 C75.3 42.6 76.1 40.9 75.5 39.4 C72 30 62.5 25 50 25 Z"
+    fill="url(#shield-grad)"
+  />
+
+  <!-- Scanner Diamond -->
+  <polygon
+    points="50,37 61,48 50,59 39,48"
+    fill="#030712"
+    stroke="#38BDF8"
+    stroke-width="1.8"
+    stroke-linejoin="round"
+  />
+  <circle cx="50" cy="48" r="4" fill="#38BDF8" />
+  <circle cx="50" cy="48" r="1.5" fill="#FFFFFF" />
+  <path d="M74 65 L84 75" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" />
+  <circle cx="85" cy="76" r="2" fill="#22D3EE" />
 </svg>
