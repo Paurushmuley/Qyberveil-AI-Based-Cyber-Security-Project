@@ -108,16 +108,16 @@ export const ScansPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white font-mono flex items-center space-x-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono flex items-center space-x-2">
             <span>Automated Security Scanner</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
             Run baseline, API security, and active assessments with strict scope boundaries and AI finding triage.
           </p>
         </div>
         <button
           onClick={() => setShowLaunchModal(true)}
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20"
+          className="self-start sm:self-auto inline-flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20"
         >
           <Play className="w-4 h-4" />
           <span>Launch New Scan</span>
@@ -221,7 +221,7 @@ export const ScansPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       {/* Findings counters */}
                       <div className="flex items-center space-x-1.5 font-mono text-[10px]">
                         <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/30">
@@ -303,7 +303,7 @@ export const ScansPage: React.FC = () => {
                               className="p-4 rounded-xl border border-cyber-border bg-cyber-900/50 space-y-2 text-xs"
                             >
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                <div className="flex items-center space-x-2">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                                   <span
                                     className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold ${
                                       f.severity === 'CRITICAL'
@@ -316,7 +316,7 @@ export const ScansPage: React.FC = () => {
                                     {f.severity}
                                   </span>
                                   <span className="font-semibold text-white">{f.title}</span>
-                                  <span className="font-mono text-slate-400 text-[11px]">
+                                  <span className="font-mono text-slate-400 text-[11px] break-all">
                                     [{f.httpMethod}] {f.endpoint}
                                   </span>
                                 </div>
@@ -327,7 +327,7 @@ export const ScansPage: React.FC = () => {
                                     analyzeMutation.mutate(f.id);
                                   }}
                                   disabled={analyzingFindingId === f.id}
-                                  className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-[11px] font-mono transition-colors disabled:opacity-50"
+                                  className="self-start sm:self-auto inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-[11px] font-mono transition-colors disabled:opacity-50"
                                 >
                                   <Sparkles className={`w-3 h-3 ${analyzingFindingId === f.id ? 'animate-spin' : ''}`} />
                                   <span>{analyzingFindingId === f.id ? 'Analyzing...' : f.aiAnalyzed ? 'Re-analyze' : 'Analyze with AI'}</span>
@@ -423,8 +423,8 @@ export const ScansPage: React.FC = () => {
       {/* Launch Scan Modal */}
       {showLaunchModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h2 className="text-lg font-bold text-white font-mono flex items-center space-x-2">
+          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-base sm:text-lg font-bold text-white font-mono flex items-center space-x-2">
               <Radar className="w-5 h-5 text-cyan-400" />
               <span>Launch Automated Security Scan</span>
             </h2>

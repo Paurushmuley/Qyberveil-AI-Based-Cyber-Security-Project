@@ -58,13 +58,13 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({ metrics, isLoading }) 
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.title}
-            className={`p-5 rounded-xl border ${card.borderColor} bg-cyber-850/40 backdrop-blur flex flex-col justify-between`}
+            className={`p-4 sm:p-5 rounded-xl border ${card.borderColor} bg-cyber-850/40 backdrop-blur flex flex-col justify-between`}
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">{card.title}</span>
@@ -72,8 +72,8 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({ metrics, isLoading }) 
                 <Icon className="w-4 h-4" />
               </div>
             </div>
-            <div className="mt-4">
-              <div className="text-3xl font-bold font-mono tracking-tight text-white">
+            <div className="mt-3 sm:mt-4">
+              <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-white">
                 {card.value}
               </div>
               <div className="mt-1 text-xs text-slate-400 flex items-center">

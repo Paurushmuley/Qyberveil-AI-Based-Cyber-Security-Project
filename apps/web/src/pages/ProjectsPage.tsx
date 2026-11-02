@@ -122,16 +122,16 @@ export const ProjectsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white font-mono">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono">
             Applications & Scope Management
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
             Register applications, define strict in-scope boundaries, and verify authorized testing permissions.
           </p>
         </div>
         <button
           onClick={() => setShowProjectModal(true)}
-          className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20"
+          className="self-start sm:self-auto inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20"
         >
           <Plus className="w-4 h-4" />
           <span>New Application</span>
@@ -206,7 +206,7 @@ export const ProjectsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                     <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-mono">
                       <Target className="w-3.5 h-3.5 text-cyan-400" />
                       <span>{project.targetCount} Targets</span>
@@ -233,7 +233,7 @@ export const ProjectsPage: React.FC = () => {
 
                 {/* Expanded Target List */}
                 {isExpanded && (
-                  <div className="p-6 bg-cyber-950/70 border-t border-cyber-border space-y-4">
+                  <div className="p-4 sm:p-6 bg-cyber-950/70 border-t border-cyber-border space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-bold text-slate-300 uppercase font-mono tracking-wide">
                         Authorized Targets ({projectTargets.length})
@@ -299,7 +299,7 @@ export const ProjectsPage: React.FC = () => {
       {/* Project Modal */}
       {showProjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-md w-full p-4 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-white font-mono">Register Application Project</h2>
             <form onSubmit={handleProjectSubmit} className="space-y-4 font-mono text-xs">
               <div>
@@ -348,8 +348,8 @@ export const ProjectsPage: React.FC = () => {
       {/* Target & Scope Modal */}
       {showTargetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h2 className="text-lg font-bold text-white font-mono flex items-center space-x-2">
+          <div className="bg-cyber-900 border border-cyber-border rounded-xl max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-base sm:text-lg font-bold text-white font-mono flex items-center space-x-2">
               <Target className="w-5 h-5 text-cyan-400" />
               <span>Register Authorized Target & Scope</span>
             </h2>

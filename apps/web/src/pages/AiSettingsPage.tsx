@@ -165,10 +165,10 @@ export const AiSettingsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white font-mono flex items-center space-x-2">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono flex items-center space-x-2">
           <span>AI Provider & Credential Management</span>
         </h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-slate-400 mt-1">
           Configure AI reasoning engines for vulnerability analysis, root-cause explanation, and remediation guidance.
         </p>
       </div>
@@ -228,8 +228,8 @@ export const AiSettingsPage: React.FC = () => {
       </div>
 
       {/* Configuration Form Card */}
-      <div className="p-6 rounded-xl border border-cyber-border bg-cyber-850/50 backdrop-blur space-y-6">
-        <div className="flex items-center justify-between border-b border-cyber-border pb-4">
+      <div className="p-4 sm:p-6 rounded-xl border border-cyber-border bg-cyber-850/50 backdrop-blur space-y-5 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-cyber-border pb-4">
           <div className="flex items-center space-x-3">
             <div className={`p-2 rounded-lg ${currentProviderMeta?.bgColor} ${currentProviderMeta?.color}`}>
               {currentProviderMeta?.icon && <currentProviderMeta.icon className="w-5 h-5" />}
@@ -388,24 +388,24 @@ export const AiSettingsPage: React.FC = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-cyber-border">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-cyber-border">
             <button
               type="button"
               onClick={() => testMutation.mutate()}
               disabled={testMutation.isPending || (!apiKey && !activeSavedConfig?.hasKeyConfigured && !isOllama)}
-              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono font-semibold transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto justify-center inline-flex items-center space-x-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono font-semibold transition-colors disabled:opacity-50"
             >
               <Play className={`w-3.5 h-3.5 ${testMutation.isPending ? 'animate-spin' : ''}`} />
-              <span>{testMutation.isPending ? 'Testing Connection...' : 'Test Provider Connection'}</span>
+              <span>{testMutation.isPending ? 'Testing Connection...' : 'Test Connection'}</span>
             </button>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
               {activeSavedConfig && (
                 <button
                   type="button"
                   onClick={() => deleteMutation.mutate(selectedProvider)}
                   disabled={deleteMutation.isPending}
-                  className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-lg border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-mono transition-colors"
+                  className="w-full sm:w-auto justify-center inline-flex items-center space-x-1.5 px-3 py-2 rounded-lg border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-mono transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Remove Credentials</span>
@@ -416,7 +416,7 @@ export const AiSettingsPage: React.FC = () => {
                 type="button"
                 onClick={() => saveMutation.mutate()}
                 disabled={saveMutation.isPending || (!apiKey && !activeSavedConfig?.hasKeyConfigured && !isOllama)}
-                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20 disabled:opacity-50"
+                className="w-full sm:w-auto justify-center inline-flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold font-mono transition-colors shadow-lg shadow-cyan-600/20 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{saveMutation.isPending ? 'Encrypting & Saving...' : 'Save & Set Active'}</span>
@@ -427,12 +427,12 @@ export const AiSettingsPage: React.FC = () => {
       </div>
 
       {/* Configured Providers Table */}
-      <div className="p-6 rounded-xl border border-cyber-border bg-cyber-850/40 backdrop-blur space-y-4">
+      <div className="p-4 sm:p-6 rounded-xl border border-cyber-border bg-cyber-850/40 backdrop-blur space-y-4">
         <div className="flex items-center justify-between border-b border-cyber-border pb-3">
           <div className="flex items-center space-x-2">
             <Server className="w-4 h-4 text-cyan-400" />
             <h2 className="text-sm font-semibold tracking-wide text-white uppercase font-mono">
-              Persisted Provider Configurations
+              Persisted Configurations
             </h2>
           </div>
           <span className="text-xs text-slate-400 font-mono">
@@ -450,65 +450,124 @@ export const AiSettingsPage: React.FC = () => {
             <p className="text-slate-500">Configure Google Gemini, OpenAI, xAI Grok, or Ollama above to activate AI-powered vulnerability triage.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-cyber-900/60 border-b border-cyber-border text-slate-400 font-mono uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th className="py-2.5 px-4">Provider</th>
-                  <th className="py-2.5 px-4">Model</th>
-                  <th className="py-2.5 px-4">Credential Status</th>
-                  <th className="py-2.5 px-4">Connection Tested</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-cyber-border font-mono">
-                {configs.map((c) => (
-                  <tr key={c.id} className="hover:bg-cyber-900/30">
-                    <td className="py-3 px-4 font-bold text-white flex items-center space-x-2">
-                      <span>{c.provider}</span>
+          <>
+            {/* Mobile Card List (< md) */}
+            <div className="block md:hidden divide-y divide-cyber-border">
+              {configs.map((c) => (
+                <div key={c.id} className="py-3 space-y-2 font-mono text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-white">{c.provider}</span>
                       {c.isActive && (
                         <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px]">
                           ACTIVE
                         </span>
                       )}
-                    </td>
-                    <td className="py-3 px-4 text-slate-300">{c.modelName}</td>
-                    <td className="py-3 px-4">
-                      {c.provider === AIProvider.OLLAMA ? (
-                        <span className="text-cyan-400 text-[11px]">Local ({c.baseUrl || 'localhost:11434'})</span>
-                      ) : c.maskedKey ? (
-                        <span className="text-slate-300 flex items-center space-x-1.5">
-                          <Lock className="w-3 h-3 text-emerald-400" />
-                          <span>{c.maskedKey}</span>
-                        </span>
-                      ) : (
-                        <span className="text-slate-500">No key stored</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {c.isTested ? (
-                        <span className="text-emerald-400 text-[11px] flex items-center space-x-1">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>Verified ({c.lastTestedAt ? new Date(c.lastTestedAt).toLocaleDateString() : 'Active'})</span>
-                        </span>
-                      ) : (
-                        <span className="text-slate-500 text-[11px]">Pending Test</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => deleteMutation.mutate(c.provider)}
-                        className="text-rose-400 hover:text-rose-300 text-xs inline-flex items-center space-x-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
-                      </button>
-                    </td>
+                    </div>
+                    <button
+                      onClick={() => deleteMutation.mutate(c.provider)}
+                      className="text-rose-400 hover:text-rose-300 text-xs inline-flex items-center space-x-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+
+                  <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                    <span className="text-slate-500">Model:</span>
+                    <span>{c.modelName}</span>
+                  </div>
+
+                  <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                    <span className="text-slate-500">Key:</span>
+                    {c.provider === AIProvider.OLLAMA ? (
+                      <span className="text-cyan-400">Local</span>
+                    ) : c.maskedKey ? (
+                      <span className="text-emerald-400 flex items-center space-x-1">
+                        <Lock className="w-3 h-3" />
+                        <span>{c.maskedKey}</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">None</span>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                    <span className="text-slate-500">Status:</span>
+                    {c.isTested ? (
+                      <span className="text-emerald-400 flex items-center space-x-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Verified</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Pending</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-cyber-900/60 border-b border-cyber-border text-slate-400 font-mono uppercase text-[10px] tracking-wider">
+                  <tr>
+                    <th className="py-2.5 px-4">Provider</th>
+                    <th className="py-2.5 px-4">Model</th>
+                    <th className="py-2.5 px-4">Credential Status</th>
+                    <th className="py-2.5 px-4">Connection Tested</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-cyber-border font-mono">
+                  {configs.map((c) => (
+                    <tr key={c.id} className="hover:bg-cyber-900/30">
+                      <td className="py-3 px-4 font-bold text-white flex items-center space-x-2">
+                        <span>{c.provider}</span>
+                        {c.isActive && (
+                          <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px]">
+                            ACTIVE
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-slate-300">{c.modelName}</td>
+                      <td className="py-3 px-4">
+                        {c.provider === AIProvider.OLLAMA ? (
+                          <span className="text-cyan-400 text-[11px]">Local ({c.baseUrl || 'localhost:11434'})</span>
+                        ) : c.maskedKey ? (
+                          <span className="text-slate-300 flex items-center space-x-1.5">
+                            <Lock className="w-3 h-3 text-emerald-400" />
+                            <span>{c.maskedKey}</span>
+                          </span>
+                        ) : (
+                          <span className="text-slate-500">No key stored</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        {c.isTested ? (
+                          <span className="text-emerald-400 text-[11px] flex items-center space-x-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Verified ({c.lastTestedAt ? new Date(c.lastTestedAt).toLocaleDateString() : 'Active'})</span>
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 text-[11px]">Pending Test</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => deleteMutation.mutate(c.provider)}
+                          className="text-rose-400 hover:text-rose-300 text-xs inline-flex items-center space-x-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

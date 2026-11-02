@@ -56,7 +56,7 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cyber-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-cyber-950 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -74,8 +74,8 @@ export const ResetPasswordPage: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
-        <div className="bg-cyber-900/90 py-8 px-6 shadow-2xl rounded-xl border border-cyber-border sm:px-10 backdrop-blur-md">
+      <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 w-full">
+        <div className="bg-cyber-900/90 py-6 sm:py-8 px-5 sm:px-10 shadow-2xl rounded-xl border border-cyber-border backdrop-blur-md">
           {error && (
             <div className="mb-6 p-3.5 rounded-lg border border-rose-500/30 bg-rose-950/40 text-rose-300 text-xs flex items-start space-x-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />

@@ -68,56 +68,108 @@ export const RecentScansTable: React.FC<RecentScansTableProps> = ({ scans, isLoa
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-cyber-900/60 border-b border-cyber-border text-slate-400 font-mono uppercase text-[10px] tracking-wider">
-              <tr>
-                <th className="py-3 px-4">Target Application</th>
-                <th className="py-3 px-4">Profile</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Findings Breakdown</th>
-                <th className="py-3 px-4">Date</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cyber-border">
-              {scans.map((scan) => (
-                <tr key={scan.id} className="hover:bg-cyber-900/40 transition-colors">
-                  <td className="py-3 px-4 font-mono font-medium text-white flex items-center space-x-2">
-                    <span>{scan.targetUrl}</span>
-                  </td>
-                  <td className="py-3 px-4 text-slate-300 font-mono">{scan.profile}</td>
-                  <td className="py-3 px-4">{getStatusBadge(scan.status)}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center space-x-1.5 font-mono">
-                      <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">
-                        {scan.criticalCount} C
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">
-                        {scan.highCount} H
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[10px] font-bold">
-                        {scan.mediumCount} M
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-300 text-[10px]">
-                        {scan.lowCount} L
-                      </span>
+        <>
+          {/* Mobile Card View (< md) */}
+          <div className="block md:hidden divide-y divide-cyber-border">
+            {scans.map((scan) => (
+              <div key={scan.id} className="p-4 space-y-3 hover:bg-cyber-900/30 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-mono text-xs font-semibold text-white truncate max-w-[220px]">
+                      {scan.targetUrl}
+                    </p>
+                    <div className="flex items-center space-x-2 text-[11px] text-slate-400 font-mono mt-0.5">
+                      <span>{scan.profile}</span>
+                      <span>•</span>
+                      <span>{new Date(scan.createdAt).toLocaleDateString()}</span>
                     </div>
-                  </td>
-                  <td className="py-3 px-4 text-slate-400 font-mono">
-                    {new Date(scan.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button className="text-cyan-400 hover:text-cyan-300 font-mono inline-flex items-center space-x-1">
-                      <span>View</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </button>
-                  </td>
+                  </div>
+                  <div className="shrink-0">{getStatusBadge(scan.status)}</div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center space-x-1.5 font-mono">
+                    <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">
+                      {scan.criticalCount} C
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                      {scan.highCount} H
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[10px] font-bold">
+                      {scan.mediumCount} M
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-300 text-[10px]">
+                      {scan.lowCount} L
+                    </span>
+                  </div>
+
+                  <a
+                    href="/scans"
+                    className="text-cyan-400 hover:text-cyan-300 font-mono text-xs inline-flex items-center space-x-1"
+                  >
+                    <span>Inspect</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (>= md) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-cyber-900/60 border-b border-cyber-border text-slate-400 font-mono uppercase text-[10px] tracking-wider">
+                <tr>
+                  <th className="py-3 px-4">Target Application</th>
+                  <th className="py-3 px-4">Profile</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Findings Breakdown</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-cyber-border">
+                {scans.map((scan) => (
+                  <tr key={scan.id} className="hover:bg-cyber-900/40 transition-colors">
+                    <td className="py-3 px-4 font-mono font-medium text-white flex items-center space-x-2">
+                      <span>{scan.targetUrl}</span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-300 font-mono">{scan.profile}</td>
+                    <td className="py-3 px-4">{getStatusBadge(scan.status)}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center space-x-1.5 font-mono">
+                        <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">
+                          {scan.criticalCount} C
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                          {scan.highCount} H
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[10px] font-bold">
+                          {scan.mediumCount} M
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-300 text-[10px]">
+                          {scan.lowCount} L
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-slate-400 font-mono">
+                      {new Date(scan.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <a
+                        href="/scans"
+                        className="text-cyan-400 hover:text-cyan-300 font-mono inline-flex items-center space-x-1"
+                      >
+                        <span>View</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
