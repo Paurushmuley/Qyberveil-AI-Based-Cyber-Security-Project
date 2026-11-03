@@ -30,5 +30,14 @@ const handleShutdown = async (signal: string) => {
   }, 10000);
 };
 
+// Global process safety handlers to prevent transient Neon DB disconnects from crashing server
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Process] Unhandled Rejection (handled to prevent server crash):', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.warn('[Process] Uncaught Exception (handled to prevent server crash):', error);
+});
+
 process.on('SIGINT', () => handleShutdown('SIGINT'));
 process.on('SIGTERM', () => handleShutdown('SIGTERM'));
